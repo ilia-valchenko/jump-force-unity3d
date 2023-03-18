@@ -2,9 +2,13 @@
 
 public class PlayerController : MonoBehaviour
 {
+    private const int MaxNumberOfJumps = 2;
+
     private Rigidbody playerRb;
     private Animator playerAnim;
     private AudioSource audioSource;
+
+    private int numberOfJumps;
 
     public ParticleSystem explosionParticle;
     public ParticleSystem dirtParticle;
@@ -30,8 +34,9 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space) && this.isOnGround && !this.gameOver)
+        if (this.CanDoJump())
         {
+            this.numberOfJumps++;
             this.playerRb.AddForce(Vector3.up * this.jumpForce, ForceMode.Impulse);
             this.isOnGround = false;
             this.playerAnim.SetTrigger("Jump_trig");
@@ -44,6 +49,7 @@ public class PlayerController : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("ground"))
         {
+            this.numberOfJumps = 0;
             this.isOnGround = true;
             this.dirtParticle.Play();
         }
@@ -64,5 +70,10 @@ public class PlayerController : MonoBehaviour
         {
             this.dirtParticle.Stop();
         }
+    }
+
+    private bool CanDoJump()
+    {
+        return Input.GetKeyDown(KeyCode.Space) && (this.isOnGround || this.numberOfJumps < MaxNumberOfJumps) && !this.gameOver;
     }
 }
