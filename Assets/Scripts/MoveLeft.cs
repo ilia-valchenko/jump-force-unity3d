@@ -2,21 +2,32 @@
 
 public class MoveLeft : MonoBehaviour
 {
-    private float speed = 20;
-    private PlayerController playerControllerScript;
+    private const float DefaultSpeed = 20;
+    private const float MaxSpeed = DefaultSpeed * 2;
+
+    private PlayerController playerController;
+    private Animator playerAnimator;
+    private float currentSpeed = DefaultSpeed;
 
     // Start is called before the first frame update
     void Start()
     {
-        this.playerControllerScript = GameObject.Find("Player").GetComponent<PlayerController>();
+        var playerGameObject = GameObject.Find("Player");
+        this.playerController = playerGameObject.GetComponent<PlayerController>();
+        this.playerAnimator = playerGameObject.GetComponent<Animator>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (!this.playerControllerScript.gameOver)
+        if (!this.playerController.gameOver)
         {
-            transform.Translate(Vector3.left * Time.deltaTime * speed);
+            this.currentSpeed = Input.GetKey(KeyCode.W) && this.playerController.isOnGround
+                ? MaxSpeed
+                : DefaultSpeed;
+
+            this.playerAnimator.SetFloat("Speed_f", this.currentSpeed);
+            transform.Translate(Vector3.left * Time.deltaTime * this.currentSpeed);
         }
 
         if (this.transform.position.x < -15 && this.gameObject.CompareTag("obstacle"))
